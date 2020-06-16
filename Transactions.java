@@ -11,45 +11,34 @@ public class Transactions
 	String tid;
 	Timestamp timeStamp;
 	// Originating site
-	ArrayList<Integer> dataObjects;
+	Integer dataItem;
 	String fun;
 	Integer number;
 	Boolean statusAtMonitor;
 
-	public Transactions(String s , String id , ArrayList<Integer> dobj , String f , int num)
+	public Transactions(String s , String id , int dobj , String f , int num)
 	{
 		this.siteName = s;
 		this.tid = id;
-		this.dataObjects = dobj;
+		this.dataItem = dobj;
 		this.timeStamp = Timestamp.from(Instant.now());
 		this.fun = f;
 		this.number = num;
 		this.statusAtMonitor = false;
 	}
 
-	public ArrayList<tableEntry> execute(String sender , ArrayList<Integer> db)
+	public tableEntry execute(String sender , ArrayList<Integer> db)
 	{
 		if((sender).equalsIgnoreCase("Monitor"))
 		{
-			ArrayList<tableEntry> returnList = new ArrayList<tableEntry>(10);
-			for(int i=0; i<10; i++)
-			{
-				returnList.add(null);
-			}
-			tableEntry temp;
-			for(int i=0 ; i<dataObjects.size() ; i++)
-			{
-				temp = new tableEntry();
-				temp.transID = tid;
-				temp.timeStamp = Timestamp.from(Instant.now());
-				temp.dataItem = dataObjects.get(i);
-				temp.dataValue = temp.dataItem + number;
-				temp.status = true;
-
-				returnList.set(temp.dataItem , temp);
-			}
-			
-			return returnList;
+			tableEntry temp = new tableEntry();
+			temp.transID = tid;
+			temp.timeStamp = Timestamp.from(Instant.now());
+			temp.dataItem = dataItem;
+			temp.dataValue = db.get(dataItem) + number;
+			temp.status = true;
+	
+			return temp;
 		}
 		else
 		{
@@ -73,9 +62,9 @@ public class Transactions
 		return this.siteName;
 	}
 
-	public ArrayList<Integer> getDataObjects()
+	public Integer getDataItem()
 	{
-		return this.dataObjects;
+		return this.dataItem;
 	}
 
 	public int getNumber()

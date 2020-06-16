@@ -14,8 +14,8 @@ public class TransactionManager
 	ArrayList<Integer> dataBase;
 	ArrayList<tableEntry> siteTable;
 	ArrayList<Boolean> lock;
-	ArrayList<tableEntry> result;
-	ArrayList<ArrayList<tableEntry>> listSiteTable;
+	tableEntry result;
+	ArrayList<tableEntry> listSiteTable;
 
 	public TransactionManager(String s)
 	{
@@ -25,7 +25,7 @@ public class TransactionManager
 		dataBase = new ArrayList<Integer>(10);
 		lock = new ArrayList<Boolean>(10);
 		siteTable = new ArrayList<tableEntry>(10);
-		listSiteTable = new ArrayList<ArrayList<tableEntry>>();
+		listSiteTable = new ArrayList<tableEntry>();
 
 		for(int i=0; i<10; i++)
 		{
@@ -35,7 +35,7 @@ public class TransactionManager
 		}
 	}
 
-	public ArrayList<tableEntry> execute(Transactions temp)
+	public tableEntry execute(Transactions temp)
 	{
 		result = temp.execute("Monitor" , dataBase);
 		if(result == null)
@@ -44,14 +44,8 @@ public class TransactionManager
 		}
 		else
 		{
-			for(int i=0; i<result.size() ; i++)
-			{
-				if(result.get(i) != null)
-				{
-					dataBase.set(i , (result.get(i)).dataValue);
-					siteTable.set(i , result.get(i));
-				}
-			}
+			dataBase.set(result.dataItem , result.dataValue);
+			siteTable.set(result.dataItem , result);
 		}
 
 		return result;

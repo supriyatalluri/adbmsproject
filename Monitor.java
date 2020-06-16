@@ -88,7 +88,7 @@ class SiteThread extends Thread
 	String checkinput = "null";
 	String vote;
 	String choice;
-	Integer temp;
+	Integer check = 1;
 	TransactionManager tm;
 
 	public SiteThread(Monitor ser,Socket SiteSocket)
@@ -131,91 +131,30 @@ class SiteThread extends Thread
 				}
 			}
 
-			os.println("Enter 1 if you want to initiate a transaction 0 otherwise : ");
-			a = Integer.parseInt(is.readLine());
-			if(a == 1)
+			check = 1;
+			int tno = 1;
+			while(check == 1)
 			{
-				os.println("Select a transaction to intiate \n1.Dataitems = [2,3,5,7,9]  ADD 2\n2.Dataitems = [0,1,4,9]  ADD 5\n3.Dataitems = [2,4,9] ADD 7\n4.Dataitems = [0,1,3] ADD 5");
-				int tno = Integer.parseInt(is.readLine());
-				String tid = siteIdentity;
-				int created = 0;
-				if(tno == 1)
+				os.println("Enter 1 if you want to initiate a transaction( any number of transactions) 0 otherwise : ");
+				check = Integer.parseInt(is.readLine());
+				if(check == 1)
 				{
-					ArrayList<Integer> dobj = new ArrayList<Integer>();
-					dobj.add(2);
-					dobj.add(3);
-					dobj.add(5);
-					dobj.add(7);
-					dobj.add(9);
-					String f = "ADD";
-					int num = 2;
-					Transactions t1 = new Transactions(siteIdentity , tid , dobj , f ,num);
-					created = 1;
-
+					os.println("Initiating transaction " + siteIdentity + String.valueOf(tno) );
+					os.println("Enter the dataItem to perform transaction on (0-9) : ");
+					int dobj = Integer.parseInt(is.readLine());
+					os.println("Assuming ADD operation , how much value is to be added : ");
+					int num = Integer.parseInt(is.readLine());
+					String tid = siteIdentity + String.valueOf(tno);
+					tno = tno + 1;
+					Transactions t1 = new Transactions(siteIdentity , tid , dobj , "ADD" ,num);
 					((ser.mtm).waiting).add(t1);
 					System.out.println("\nReceived transaction from site " + siteIdentity);
-					System.out.println("Transaction Details :  " + t1.dataObjects + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
-
+					System.out.println("Transaction Details :  " + tid + "dataItem" + t1.dataItem + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
 				}
-				if(tno == 2)
+				if(check == 0)
 				{
-					ArrayList<Integer> dobj = new ArrayList<Integer>();
-					dobj.add(0);
-					dobj.add(1);
-					dobj.add(4);
-					dobj.add(9);
-					String f = "ADD";
-					int num = 5;
-					Transactions t1 = new Transactions(siteIdentity , tid , dobj , f ,num);
-					created = 1;
-
-					((ser.mtm).waiting).add(t1);
-					System.out.println("\nReceived transaction from site " + siteIdentity);
-					System.out.println("Transaction Details :  " + t1.dataObjects + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
-
+					break;
 				}
-				if(tno == 3)
-				{
-					ArrayList<Integer> dobj = new ArrayList<Integer>();
-					dobj.add(2);
-					dobj.add(4);
-					dobj.add(9);
-					String f = "ADD";
-					int num = 7;
-					Transactions t1 = new Transactions(siteIdentity , tid , dobj , f ,num);
-					created = 1;
-
-					((ser.mtm).waiting).add(t1);
-					System.out.println("\nReceived transaction from site " + siteIdentity);
-					System.out.println("Transaction Details :  " + t1.dataObjects + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
-
-				}
-				if(tno == 4)
-				{
-					ArrayList<Integer> dobj = new ArrayList<Integer>();
-					dobj.add(0);
-					dobj.add(1);
-					dobj.add(3);
-					String f = "ADD";
-					int num = 5;
-					Transactions t1 = new Transactions(siteIdentity , tid , dobj , f ,num);
-					created = 1;
-
-					((ser.mtm).waiting).add(t1);
-					System.out.println("\nReceived transaction from site " + siteIdentity);
-					System.out.println("Transaction Details :  " + t1.dataObjects + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
-				}
-
-				if(created == 0)
-				{
-					os.println("Error in creating Transaction.");
-				}
-
-				checkinput = "done";
-			}
-			else
-			{
-				checkinput = "done";
 			}
 			a= 1;
 			while(a==1)
@@ -223,11 +162,19 @@ class SiteThread extends Thread
 				a = 0;
 				for(int i=0; i<(ser.t).size(); i++)
 				{
-					if((((ser.t).get(i)).checkinput).equalsIgnoreCase("null"))
+					if((((ser.t).get(i)).check) == 1)
 					{
 						a = 1;
 					}
 				}
+			}
+			try
+			{
+				Thread.sleep(5000);
+			}
+			catch(Exception e)
+			{
+				System.out.println(e);
 			}
 
 			if((ser.t).indexOf(this) == 0)
@@ -238,8 +185,8 @@ class SiteThread extends Thread
 				for(int j=0 ; j<((ser.mtm).waiting).size(); j++)
 				{
 					Transactions temp = ((ser.mtm).waiting).get(j);
-					System.out.println("\nExcuting Transaction id: " + temp.tid + " dataObjects :" + temp.dataObjects  + "  " + temp.fun + "  " + temp.number);
-					ArrayList<tableEntry> tempTE = (ser.mtm).execute(temp);
+					System.out.println("\nExcuting Transaction id: " + temp.tid + " dataObjects :" + temp.dataItem  + "  " + temp.fun + "  " + temp.number);
+					tableEntry tempTE = (ser.mtm).execute(temp);
 					System.out.println("Result database : " + (ser.mtm).dataBase);
 					((ser.mtm).completed).add(temp);
 					for(int i=0; i<(ser.t).size(); i++)
@@ -253,7 +200,10 @@ class SiteThread extends Thread
 			}
 			try
 			{
-				Thread.sleep(5000);
+				if((ser.t).indexOf(this) != 0)
+				{
+					Thread.sleep(5000);
+				}
 			}
 			catch (Exception e)
 			{
@@ -261,7 +211,7 @@ class SiteThread extends Thread
 			}
 			os.println("Received metadata from Central Site");
 			os.println(tm.listSiteTable);
-			tm.algorithm(is , os);
+			// tm.algorithm(is , os);
 			// temp = (tm.listSiteTable).size();
 			// int i = 0;
 			// int last_index = 0;
