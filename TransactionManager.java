@@ -14,6 +14,7 @@ public class TransactionManager
 	ArrayList<Integer> dataBase;
 	ArrayList<tableEntry> siteTable;
 	ArrayList<Boolean> lock;
+	// true means locked false means free
 	tableEntry result;
 	ArrayList<tableEntry> listSiteTable;
 
