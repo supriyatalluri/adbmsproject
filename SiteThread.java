@@ -22,17 +22,11 @@ class SiteThread extends Thread
 	int transaction_pointer = -1;
 	int ptp = -1;
 	int indexOfthis = -1;
-	ArrayList<Integer> transaction_wait = new ArrayList<Integer>(10);
 
 	public SiteThread(Monitor ser,Socket SiteSocket)
 	{
 		this.SiteSocket = SiteSocket;
 		this.ser=ser;	
-		for(int i=0 ; i<10 ; i++)
-		{
-			(this.transaction_wait).add(-1);
-		}
-
 	}
 
 	public void run()
@@ -64,7 +58,7 @@ class SiteThread extends Thread
 			else
 			{
 				os.println("Found the Database site." );
-				tos.println("Data in the site is : " + tm.dataBase);
+				os.println("Data in the site is : " + tm.dataBase);
 			}
 			os.println("Waiting for other sites to fill their information");
 			int a = 1;
@@ -88,7 +82,7 @@ class SiteThread extends Thread
 			if(b == 1)
 			{
 				System.out.println("No generator site created.... Exiting....");
-				os.println("No generator site created....Exiting...")
+				os.println("No generator site created....Exiting...");
 				System.exit(0);
 			}
 
@@ -109,7 +103,7 @@ class SiteThread extends Thread
 						int num = Integer.parseInt(is.readLine());
 						String tid = siteIdentity + String.valueOf(tno);
 						tno = tno + 1;
-						Transactions t1 = new Transactions(siteIdentity , tid , dobj , "ADD" ,num);
+						Transactions t1 = new Transactions(siteIdentity , tid , dobj , "ADD" , num , (ser.t).size() );
 						((ser.mtm).waiting).add(t1);
 						System.out.println("\nReceived transaction from site " + siteIdentity);
 						System.out.println("Transaction Details :  " + tid + "dataItem" + t1.dataItem + "  Timestamp : " + t1.timeStamp + "  Operation : " + t1.fun + "  " + t1.number );
@@ -155,7 +149,7 @@ class SiteThread extends Thread
 					Transactions temp = ((ser.mtm).waiting).get(j);
 					System.out.println("\nExcuting Transaction id: " + temp.tid + " dataObjects :" + temp.dataItem  + "  " + temp.fun + "  " + temp.number);
 					tableEntry tempTE = (ser.mtm).execute(temp);
-					System.out.println("Result database : " + (ser.mtm).dataBase);
+					System.out.println("Result dataItem : " + (ser.mtm).dataBase);
 					((ser.mtm).completed).add(temp);
 					for(int i=0; i<(ser.t).size(); i++)
 					{
@@ -163,7 +157,7 @@ class SiteThread extends Thread
 						((((ser.t).get(i)).tm).listSiteTable).add(tempTE);
 						((((ser.t).get(i)).tm).waiting).add(temp);
 					}
-					System.out.println("Sent metadata for the above transaction.");
+					System.out.println("Generated metadata for the above transactions.");
 				}
 			}
 			try
@@ -182,46 +176,43 @@ class SiteThread extends Thread
 
 			if(siteIdentity.equalsIgnoreCase("generator"))
 			{
-				os.println("Transactions in Queue : "  + tm.waiting);
+				os.println("Transactions in Queue : "  + tm.waiting );
 				os.println("Enter SEND to initiate the next transaction in the other sites");
 				String decision;
-				int ptr_to_transaction = -1;
 				int no_of_transaction = (tm.waiting).size();
+				int ptr_to_transaction = -1;
 				// denoted the latest sent transaction
-				while(true)
+				while(((tm).waiting).size()>0)
 				{
+					os.println("Next Transaction : " + (tm.waiting).get(0));
 					os.println("Your decision : ");
 					decision = is.readLine();
 					if(decision.equalsIgnoreCase("SEND"))
 					{
-						ptr_to_transaction = ptr_to_transaction + 1
-						if(ptr_to_transaction == no_of_transaction)
+						ptr_to_transaction = ptr_to_transaction + 1;
+						for(int i=0; i<(ser.t).size(); i++)
 						{
-							break;
-						}
-						else
-						{
-							for(int i=0; i<(ser.t).size(); i++)
-							{
-								((ser.t).get(i)).transaction_pointer = ptr_to_transaction;
-							}
+							((ser.t).get(i)).transaction_pointer = ptr_to_transaction;
 						}
 
+						(tm.waiting).remove(0);
 					}
-
 				}
 			}
 			else
 			{
+				os.println("ELSEEEE##################");
 				while(true)
 				{
+					os.println(ptp + " " + transaction_pointer);
 					if(ptp == transaction_pointer-1)
 					{
 						ptp = transaction_pointer;
+						Transactions temp = (tm.waiting).get(ptp);
 						os.println("Request for transaction " + transaction_pointer + " received");
 						os.println("Resources required : " + ((tm.waiting).get(transaction_pointer)).dataItem  );
 						os.println("Status of Resources : " + tm.lock);
-						os.println("Enter ACCEPT if the resource is free and you want to execute the transaction. REJECT otherwise :")
+						os.println("Enter ACCEPT if the resource is free and you want to execute the transaction. REJECT otherwise :");
 						String v = is.readLine();
 						if(v.equalsIgnoreCase("ACCEPT"))
 						{
@@ -246,9 +237,9 @@ class SiteThread extends Thread
 							}
 						}
 
-						if(siteIdentity.equalsIgnoreCase('A'))
+						if(siteIdentity.equalsIgnoreCase("A"))
 						{
-							System.out.println("Received votes from all sites..")
+							System.out.println("Received votes from all sites..");
 						}
 
 						int accept = 0;
@@ -266,6 +257,76 @@ class SiteThread extends Thread
 								}
 							}
 
+
+						if(accept > reject && siteIdentity.equalsIgnoreCase("A"))
+						{
+							System.out.println(accept + " Sites accepted the Request. " + reject + " sites rejected");
+						}
+
+						if(accept > reject && v.equalsIgnoreCase("ACCEPT"))
+						{
+							os.println("Updating the database..");
+							tableEntry temp3 = (tm.listSiteTable).get(0);
+							int feedback = tm.updateDatabase(temp3);
+							if(feedback == 0)
+							{
+								os.println("This is a older timestamp.Database is already updated , rejecting the request");
+							}
+							else
+							{
+								os.println("Database is now updated. " + tm.dataBase);
+							}
+						}
+
+						if(accept > reject && v.equalsIgnoreCase("REJECT"))
+						{
+							os.println("Transaction is accepted by majority of sites. Request will be done in regular intervals.");
+							tableEntry temp1 = (tm.listSiteTable).get(0);
+							(tm.rejected).add(temp1);
+						}
+
+						if(reject >= accept &&  siteIdentity.equalsIgnoreCase("A"))
+						{
+							os.println("Transaction is rejected by majority of sites. Request will be done again in regular intervals");
+							tableEntry temp2 = (tm.listSiteTable).get(0);
+							(tm.rejected).add(temp2);
+						}
+
+						for(int i=0 ; i<(ser.t).size() ; i++)
+						{
+							(ser.vote_t).set(i,"null");
+						}
+					}
+
+					while((tm.rejected).size()>0)
+					{
+						os.println("No of transactions left : " + (tm.rejected).size());
+						tableEntry temp = (tm.rejected).get(0);
+						os.println("Second request for updation");
+						os.println("Resources required : " + temp.dataItem  );
+						os.println("Status of Resources : " + tm.lock);
+						os.println("Enter ACCEPT if the resource is free and you want to execute the transaction. REJECT otherwise :");
+						String v = is.readLine();
+						if(v.equalsIgnoreCase("ACCEPT"))
+						{	
+							os.println("Updating the database..");
+							int feedback = tm.updateDatabase(temp);
+							if(feedback == 0)
+							{
+								os.println("This is a older timestamp.Database is already updated , rejecting the request");
+							}
+							else
+							{
+								os.println("Database is now updated. " + tm.dataBase);
+							}
+							(tm.rejected).remove(0);
+						}
+						else
+						{
+							(tm.rejected).add(temp);
+							(tm.rejected).remove(0);
+							os.println("Request rejected. Will be requested in regular intervals.");
+						}
 
 					}
 				}

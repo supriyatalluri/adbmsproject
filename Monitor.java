@@ -10,8 +10,6 @@ public class Monitor
 {
 	boolean closed=false;
 	boolean inputFromAll=false;
-	String generatorName = "generator";
-	String generatorIndex = -1;
 	ArrayList<ArrayList<String>> votes;
 	ArrayList<String> vote_t;
 	ArrayList<SiteThread> t;
@@ -25,10 +23,10 @@ public class Monitor
 	// String reqSent;
 	Scanner scan = new Scanner(System.in);
 
-	Monitor()
+	public Monitor()
 	{
 		t = new ArrayList<SiteThread>();
-		votes = new Array<ArrayList<String>>();
+		votes = new ArrayList<ArrayList<String>>();
 		vote_t = new ArrayList<String>();
 		// votes = new ArrayList<String>();
 		names = new ArrayList<String>();

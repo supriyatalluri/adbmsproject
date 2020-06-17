@@ -11,28 +11,33 @@ public class TransactionManager
 	//Owner site name
 	ArrayList<Transactions> completed;
 	ArrayList<Transactions> waiting;
+	ArrayList<tableEntry> rejected;
 	ArrayList<Integer> dataBase;
 	ArrayList<tableEntry> siteTable;
 	ArrayList<Boolean> lock;
 	// true means locked false means free
 	tableEntry result;
 	ArrayList<tableEntry> listSiteTable;
+	ArrayList<Timestamp> listTimestamp;
 
 	public TransactionManager(String s)
 	{
 		this.siteName = s;
+		rejected = new ArrayList<tableEntry>();
 		completed = new ArrayList<Transactions>();
 		waiting = new ArrayList<Transactions>();
 		dataBase = new ArrayList<Integer>(10);
 		lock = new ArrayList<Boolean>(10);
 		siteTable = new ArrayList<tableEntry>(10);
 		listSiteTable = new ArrayList<tableEntry>();
+		listTimestamp = new ArrayList<Timestamp>(10);
 
 		for(int i=0; i<10; i++)
 		{
 			dataBase.add(i);
 			siteTable.add(null);
 			lock.add(false);
+			listTimestamp.add(Timestamp.from(Instant.now()));
 		}
 	}
 
@@ -65,15 +70,15 @@ public class TransactionManager
 		return temp;
 	}
 
-	public void updateDatabase()
+	public int updateDatabase(tableEntry temp)
 	{
-		for(int i=0 ; i<siteTable.size(); i++)
+		if((listTimestamp.get(temp.dataItem)).compareTo(temp.timeStamp) < 0)
 		{
-			if(siteTable.get(i) != null)
-			{
-				dataBase.set(i , (siteTable.get(i)).dataValue);
-				lock.set(i, false);
-			}
+			dataBase.set(temp.dataItem , temp.dataValue);
+			listTimestamp.set(temp.dataItem , temp.timeStamp);
+			return 1;
 		}
+
+		return 0;
 	}
 }

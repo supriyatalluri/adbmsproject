@@ -15,8 +15,9 @@ public class Transactions
 	String fun;
 	Integer number;
 	Boolean statusAtMonitor;
+	ArrayList<String> votes;
 
-	public Transactions(String s , String id , int dobj , String f , int num)
+	public Transactions(String s , String id , int dobj , String f , int num , int sitesno)
 	{
 		this.siteName = s;
 		this.tid = id;
@@ -25,6 +26,11 @@ public class Transactions
 		this.fun = f;
 		this.number = num;
 		this.statusAtMonitor = false;
+		this.votes = new ArrayList<String>(sitesno);
+		for(int i=0; i<sitesno ; i++)
+		{
+			(this.votes).add("null");
+		}
 	}
 
 	public tableEntry execute(String sender , ArrayList<Integer> db)
