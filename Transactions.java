@@ -39,7 +39,7 @@ public class Transactions
 		{
 			tableEntry temp = new tableEntry();
 			temp.transID = tid;
-			temp.timeStamp = Timestamp.from(Instant.now());
+			temp.timeStamp = timeStamp;
 			temp.dataItem = dataItem;
 			temp.dataValue = db.get(dataItem) + number;
 			temp.status = true;

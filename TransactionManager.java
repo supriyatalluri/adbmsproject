@@ -11,6 +11,7 @@ public class TransactionManager
 	//Owner site name
 	ArrayList<Transactions> completed;
 	ArrayList<Transactions> waiting;
+	ArrayList<Transactions> rejectedTransactions;
 	ArrayList<tableEntry> rejected;
 	ArrayList<Integer> dataBase;
 	ArrayList<tableEntry> siteTable;
@@ -24,6 +25,7 @@ public class TransactionManager
 	{
 		this.siteName = s;
 		rejected = new ArrayList<tableEntry>();
+		rejectedTransactions = new ArrayList<Transactions>();
 		completed = new ArrayList<Transactions>();
 		waiting = new ArrayList<Transactions>();
 		dataBase = new ArrayList<Integer>(10);
@@ -80,5 +82,15 @@ public class TransactionManager
 		}
 
 		return 0;
+	}
+
+	public int isOlderTransaction(tableEntry temp)
+	{
+		if((listTimestamp.get(temp.dataItem)).compareTo(temp.timeStamp) < 0)
+		{
+			return 1;
+		}
+		return 0;
+
 	}
 }

@@ -12,6 +12,7 @@ public class Monitor
 	boolean inputFromAll=false;
 	ArrayList<ArrayList<String>> votes;
 	ArrayList<String> vote_t;
+	ArrayList<String> decision;
 	ArrayList<SiteThread> t;
 	// List<String> votes;
 	ArrayList<String> names;
@@ -28,6 +29,7 @@ public class Monitor
 		t = new ArrayList<SiteThread>();
 		votes = new ArrayList<ArrayList<String>>();
 		vote_t = new ArrayList<String>();
+		decision = new ArrayList<String>();
 		// votes = new ArrayList<String>();
 		names = new ArrayList<String>();
 		// activeTranscations = new ArrayList<Transactions>();
@@ -65,7 +67,8 @@ public class Monitor
 					System.out.println("For every site, initializing a random completely replicated database.");
 				}
 				System.out.println("\nNow Total sites are : "+(ser.t).size());
-				(ser.vote_t).add("null");		
+				(ser.vote_t).add("null");
+				(ser.decision).add("null");		
 				// (ser.names).add("null");
 				th.start();
 			}
